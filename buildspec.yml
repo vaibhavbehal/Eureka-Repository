@@ -8,6 +8,9 @@ phases:
       - export JAVA_HOME=/usr/lib/jvm/java-21-amazon-corretto
       - export PATH=$JAVA_HOME/bin:$PATH
       - java -version
+
+      - echo Installing Maven...
+      - yum install -y maven
       - mvn -version
 
   pre_build:
