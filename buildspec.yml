@@ -1,32 +1,23 @@
 version: 0.2
 
 phases:
-  install:
-    commands:
-      - echo Installing Java 21...
-      - yum install -y java-21-amazon-corretto-devel
-      - export JAVA_HOME=/usr/lib/jvm/java-21-amazon-corretto
-      - export PATH=$JAVA_HOME/bin:$PATH
-      - java -version
-
-      - echo Installing Maven...
-      - yum install -y maven
-      - mvn -version
-
   pre_build:
     commands:
-      - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com
+      - echo "Checking Java & Maven"
+      - java -version
+      - mvn -version
+      - echo "Logging in to Amazon ECR"
+      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.ap-south-1.amazonaws.com
 
   build:
     commands:
-      - echo Building application...
+      - echo "Building Spring Boot jar"
       - mvn clean package -DskipTests
-      - echo Building Docker image...
+      - echo "Building Docker image"
       - docker build -t eureka-service .
 
   post_build:
     commands:
-      - echo Pushing Docker image to ECR...
-      - docker tag eureka-service:latest $AWS_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/eureka-service:latest
-      - docker push $AWS_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/eureka-service:latest
+      - echo "Pushing image to ECR"
+      - docker tag eureka-service:latest ${AWS_ACCOUNT_ID}.dkr.ecr.ap-south-1.amazonaws.com/eureka-service:latest
+      - docker push ${AWS_ACCOUNT_ID}.dkr.ecr.ap-south-1.amazonaws.com/eureka-service:latest
